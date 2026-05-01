@@ -1,0 +1,42 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{07D57EEB-2F50-60C4-C011-FE4FA775C9A8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MonoMod", "MonoMod", "{F4A9BABC-29C5-C76B-19CC-9E2FBB7980C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoHook.MonoMod", "plugins\MonoMod\MonoHook.MonoMod.csproj", "{344764DB-AC8A-00BD-139B-2EF53E82434A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "demo", "demo", "{A7A45208-FDB4-959C-0299-121B083A2F24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoHook.Demo", "plugins\demo\MonoHook.Demo.csproj", "{BEC3ABB6-6C76-653D-CB41-D8DE16024C19}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{344764DB-AC8A-00BD-139B-2EF53E82434A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{344764DB-AC8A-00BD-139B-2EF53E82434A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{344764DB-AC8A-00BD-139B-2EF53E82434A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{344764DB-AC8A-00BD-139B-2EF53E82434A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEC3ABB6-6C76-653D-CB41-D8DE16024C19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEC3ABB6-6C76-653D-CB41-D8DE16024C19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEC3ABB6-6C76-653D-CB41-D8DE16024C19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEC3ABB6-6C76-653D-CB41-D8DE16024C19}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F4A9BABC-29C5-C76B-19CC-9E2FBB7980C8} = {07D57EEB-2F50-60C4-C011-FE4FA775C9A8}
+		{344764DB-AC8A-00BD-139B-2EF53E82434A} = {F4A9BABC-29C5-C76B-19CC-9E2FBB7980C8}
+		{A7A45208-FDB4-959C-0299-121B083A2F24} = {07D57EEB-2F50-60C4-C011-FE4FA775C9A8}
+		{BEC3ABB6-6C76-653D-CB41-D8DE16024C19} = {A7A45208-FDB4-959C-0299-121B083A2F24}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B561BB83-1176-42F5-B88A-17B9C37D5E76}
+	EndGlobalSection
+EndGlobal

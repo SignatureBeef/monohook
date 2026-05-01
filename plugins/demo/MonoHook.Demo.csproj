@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net40</TargetFrameworks>
+    <AssemblyName>MonoHook.Demo</AssemblyName>
+    <RootNamespace>MonoHook.Demo</RootNamespace>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+</Project>
