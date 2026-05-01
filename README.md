@@ -27,6 +27,10 @@ MonoHook is a shared library (`monohook.so/dylib`) designed to be injected into 
    ```
 4. Check the output for plugin load status and logs.
 
+### Plugin Examples
+- [Demo Plugin](./plugins/demo/)
+- [Terraria](https://github.com/SignatureBeef/MonoHook.Terraria)
+
 ## Expected Output
 
 When everything is working correctly, you should see console output similar to the following when launching your Mono application with MonoHook:
@@ -47,4 +51,5 @@ This indicates that MonoHook has successfully hooked into the Mono runtime, load
 - Mainly tested on Linux x64 on a Terraria steam install (using a mono embedded via MonoKickstart)
 - OSX Apple Silicon (ARM64) is also working, albiet fragile
 - Plugins must be compatible with the target application's Mono version and runtime configuration.
-- This tool is intended for advanced users familiar with Mono, dynamic library injection, and .NET plugin development.
+- This tool is is provided without warranty. Use at your own risk, as with anything...
+
