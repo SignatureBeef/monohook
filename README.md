@@ -20,12 +20,13 @@ MonoHook is a shared library (`monohook.so/dylib`) designed to be injected into 
 
 ## Usage
 1. Build `monohook.so` (see `build.sh` or your preferred build method).
-2. Place your plugin DLLs in the `monohook/plugins/` directory. Each plugin should have a class `MonoHook.Loader` with a static `Run` method.
 3. Launch your Mono application with `monohook.so` injected, e.g.:
    ```sh
    MONOHOOK_VERBOSE=1 LD_PRELOAD=/path/to/monohook.so ./TheGame
    ```
-4. Check the output for plugin load status and logs.
+   Initial run will create the directory structures, so close the application and proceed.
+2. Place your plugin DLLs in the `monohook/plugins/` directory. Each plugin should have a class `MonoHook.Loader` with a static `Run` method (0 or 3 arguments, see examples).
+5. Run again and check the output for plugin load status and logs.
 
 ### Plugin Examples
 - [Demo Plugin](./plugins/demo/)
