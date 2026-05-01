@@ -1,9 +1,5 @@
-# MonoHook
-
-MonoHook is a dynamic Mono runtime patcher and plugin loader for Linux x64.
-
 ## What is this?
-MonoHook is a shared library (`monohook.so`) designed to be injected into Mono-based applications. It hooks into the Mono runtime, allowing you to dynamically load and execute managed .NET plugins at runtime, without modifying the target application's code or binaries.
+MonoHook is a shared library (`monohook.so/dylib`) designed to be injected into Mono-based applications at runtime. It hooks into the Mono runtime, allowing you to dynamically load and execute managed .NET plugins at runtime, without modifying the target application's binaries.
 
 ## How does it work?
 - **Dynamic Library Injection:** `monohook.so` is injected into a running Mono process (e.g., via `LD_PRELOAD`).
