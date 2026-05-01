@@ -9,6 +9,8 @@
 #include <sys/mman.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 // Verbose logging flag (set via environment variable MONOHOOK_VERBOSE=1)
 static int monohook_verbose = -1;
@@ -286,10 +288,6 @@ void patch_mono_jit_exec() {
     LOGV("[monohook] Patched mono_jit_exec at %p -> %p\n", addr, target);
     already_patched = 1;
 }
-
-// --- Managed injection, now with plugin directory scan ---
-#include <dirent.h>
-#include <sys/stat.h>
 
 /**
  * @brief Ensure a directory exists, creating it if necessary.
