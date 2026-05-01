@@ -98,6 +98,14 @@ static mono_assembly_get_image_t real_mono_assembly_get_image = NULL;
 typedef void* (*mono_domain_get_t)(void);
 static mono_domain_get_t real_mono_domain_get = NULL;
 
+#ifdef __APPLE__
+typedef void (*mono_install_assembly_load_hook_t)(void (*)(void*, void*), void*);
+static mono_install_assembly_load_hook_t real_mono_install_assembly_load_hook = NULL;
+
+typedef const char* (*mono_image_get_name_t)(void*);
+static mono_image_get_name_t real_mono_image_get_name = NULL;
+#endif
+
 /**
  * @brief Loads all required Mono runtime symbols using dlsym.
  *
@@ -115,6 +123,12 @@ static void load_mono_symbols() {
     real_mono_runtime_invoke = (mono_runtime_invoke_t)dlsym(RTLD_DEFAULT, "mono_runtime_invoke");
     real_mono_assembly_get_image = (mono_assembly_get_image_t)dlsym(RTLD_DEFAULT, "mono_assembly_get_image");
     real_mono_domain_get = (mono_domain_get_t)dlsym(RTLD_DEFAULT, "mono_domain_get");
+
+#ifdef __APPLE__
+    real_mono_install_assembly_load_hook = (mono_install_assembly_load_hook_t)dlsym(RTLD_DEFAULT, "mono_install_assembly_load_hook");
+    real_mono_image_get_name = (mono_image_get_name_t)dlsym(RTLD_DEFAULT, "mono_image_get_name");
+#endif
+
     // Check if at least one critical symbol is found
     if (real_mono_domain_assembly_open && real_mono_get_root_domain) {
         mono_symbols_loaded = 1;
@@ -421,6 +435,51 @@ static void inject_plugins(void *domain, void *assembly, int argc, char **argv) 
     closedir(dir);
 }
 
+#ifdef __APPLE__
+static int monohook_assembly_hook_installed = 0;
+static int monohook_assembly_loaded = 0;
+
+static void monohook_on_assembly_load(void *assembly, void *user_data) {
+    (void)user_data;
+    if(monohook_assembly_loaded) return;
+
+    if (!assembly || !real_mono_assembly_get_image || !real_mono_image_get_name) return;
+    void *image = real_mono_assembly_get_image(assembly);
+    if (!image) return;
+
+    const char *name = real_mono_image_get_name(image);
+    if (!name) return;
+    
+    // ignore the first mscorlib 
+    static const char *mscorlib = "mscorlib";
+    if (strcmp(name, mscorlib) == 0) return;
+
+    LOGV("[monohook] Assembly loaded: %s\n", name);
+    monohook_assembly_loaded = 1;
+
+    void *domain = real_mono_domain_get ? real_mono_domain_get() : NULL;
+    if (!domain && real_mono_get_root_domain) {
+        domain = real_mono_get_root_domain();
+    }
+    if (!domain) {
+        LOGV("[monohook] [ERROR] Entry assembly observed but no domain found\n");
+        return;
+    }
+    
+    inject_plugins(domain, assembly, 0, NULL);
+}
+
+static void monohook_try_install_assembly_hook(void) {
+    if (monohook_assembly_hook_installed) return;
+    load_mono_symbols();
+    if (!real_mono_install_assembly_load_hook) return;
+
+    real_mono_install_assembly_load_hook(monohook_on_assembly_load, NULL);
+    monohook_assembly_hook_installed = 1;
+    LOGV("[monohook] Installed mono assembly load hook\n");
+}
+#endif
+
 /**
  * @brief MonoHook library constructor. Called automatically on library load.
  *
@@ -428,5 +487,10 @@ static void inject_plugins(void *domain, void *assembly, int argc, char **argv) 
  */
 __attribute__((constructor))
 static void monohook_init() {
+#ifdef __APPLE__
+    LOGV("[monohook] macOS mode: assembly-load hook (no text patching)\n");
+    monohook_try_install_assembly_hook();
+#else
     patch_mono_jit_exec();
+#endif
 }

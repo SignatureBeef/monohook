@@ -1,4 +1,6 @@
 obj/
 bin/
 **/*.so
+**/*.dylib
 .env.override
+.DS_Store

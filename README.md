@@ -48,6 +48,7 @@ SDL Video Driver: wayland
 This indicates that MonoHook has successfully hooked into the Mono runtime, loaded your plugins, and the application is running as expected.
 
 ## Notes
-- Only tested on Linux x64 on a Terraria steam install (using a mono embedded via MonoKickstart)
+- Mainly tested on Linux x64 on a Terraria steam install (using a mono embedded via MonoKickstart)
+- OSX Apple Silicon (ARM64) is also working, albiet fragile
 - Plugins must be compatible with the target application's Mono version and runtime configuration.
 - This tool is intended for advanced users familiar with Mono, dynamic library injection, and .NET plugin development.
