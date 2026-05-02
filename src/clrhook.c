@@ -56,9 +56,6 @@ static mono_runtime_invoke_t real_mono_runtime_invoke = NULL;
  *
  * @param dll_path Path to the plugin DLL.
  * @param domain Mono domain pointer.
- * @param assembly Mono assembly pointer.
- * @param argc Argument count for managed string array.
- * @param argv Argument vector for managed string array.
  */
 static void clrhook_mono_load_plugin(const char *dll_path, void *domain)
 {
@@ -105,6 +102,9 @@ static void clrhook_mono_load_plugin(const char *dll_path, void *domain)
 const char *plugin_dir = "./clrhook/plugins";
 const char *parent_dir = "./clrhook";
 
+/*
+ * Ensure that the necessary directories exist for the plugin system.
+ */
 static void clrhook_ensure_directories()
 {
     if (!clrhook_ensure_directory(parent_dir, 0755))
@@ -113,6 +113,14 @@ static void clrhook_ensure_directories()
         return;
 }
 
+/**
+ * @brief Load all plugin DLLs from the plugin directory for Mono.
+ *
+ * Scans the plugin directory for .dll files and attempts to load each one as a .NET assembly,
+ * invoking their StartupHook.Initialize method if found just as coreclr does with DOTNET_STARTUP_HOOKS.
+ *
+ * @param native_app_domain Pointer to the Mono application domain.
+ */
 static void clrhook_mono_load_plugins(void *native_app_domain)
 {
     clrhook_ensure_directories();
@@ -141,6 +149,9 @@ static void clrhook_mono_load_plugins(void *native_app_domain)
     closedir(dir);
 }
 
+/**
+ * @brief Enumeration of supported runtime types.
+ */
 typedef enum
 {
     RUNTIME_UNKNOWN = 0,
@@ -162,6 +173,14 @@ static mono_image_get_name_t real_mono_image_get_name = NULL;
 
 #include <string.h>
 
+/**
+ * @brief Check if a given Mono assembly is mscorlib.
+ *
+ * This is used to skip loading plugins from the mscorlib assembly, which is not a plugin and can cause issues if treated as one.
+ *
+ * @param assembly Pointer to the Mono assembly to check.
+ * @return 1 if the assembly is mscorlib, 0 otherwise.
+ */
 static int clrhook_is_mscorlib(void *assembly)
 {
     void *image = real_mono_assembly_get_image(assembly);
@@ -179,6 +198,14 @@ static int clrhook_is_mscorlib(void *assembly)
 }
 
 static int monohook_assembly_loaded = 0;
+/**
+ * @brief Mono assembly load hook callback.
+ * This function is called by Mono whenever an assembly is loaded and will bootstrap the plugins
+ * into the active Mono domain.
+ *
+ * @param assembly Pointer to the loaded Mono assembly.
+ * @param user_data User data pointer (unused in this case).
+ */
 static void clrhook_mono_on_assembly_load(void *assembly, void *user_data)
 {
     (void)user_data;
@@ -189,16 +216,23 @@ static void clrhook_mono_on_assembly_load(void *assembly, void *user_data)
     if (!domain)
         return;
 
+    // mscorlib is expected to always to be the first assembly loaded by mono.
+    // without it loading first System.Object (etc) will not be available to subsequent assemblies.
     if (clrhook_is_mscorlib(assembly))
         return;
 
     monohook_assembly_loaded = 1;
 
-    fprintf(stderr, "[hook] Mono assembly loaded: %p\n", assembly);
+    fprintf(stderr, "[clrhook] Mono assembly loaded: %p\n", assembly);
 
     clrhook_mono_load_plugins(domain);
 }
 
+/**
+ * @brief Initialize plugin loading for Mono runtime.
+ *
+ * This function sets up the necessary hooks to load plugins when Mono assemblies are loaded. It retrieves the required Mono API functions and registers the assembly load hook.
+ */
 static void clrhook_mono_launch()
 {
     // mono doesnt have a StartupHooks embedded in the runtime...so lets do it ourselves.
@@ -214,7 +248,7 @@ static void clrhook_mono_launch()
 
     if (!real_mono_install_assembly_load_hook || !real_mono_domain_get || !real_mono_image_get_name || !real_mono_class_from_name || !real_mono_class_get_method_from_name || !real_mono_domain_assembly_open || !real_mono_assembly_get_image || !real_mono_runtime_invoke)
     {
-        fprintf(stderr, "[hook] Failed to find one or more Mono API symbols. Plugin loading will not work.\n");
+        fprintf(stderr, "[clrhook] Failed to find one or more Mono API symbols. Plugin loading will not work.\n");
         return;
     }
 
@@ -222,11 +256,16 @@ static void clrhook_mono_launch()
     real_mono_install_assembly_load_hook(clrhook_mono_on_assembly_load, NULL);
 }
 
+/**
+ * @brief Initialize plugin loading for CoreCLR runtime.
+ *
+ * This function scans the plugin directory for .dll files and constructs the DOTNET_STARTUP_HOOKS environment variable to include them, allowing CoreCLR to load them as startup hooks.
+ *
+ * coreclr has native apis for this: DOTNET_STARTUP_HOOKS
+ * see: https://github.com/dotnet/runtime/blob/main/docs/design/features/host-startup-hook.md
+ */
 static void clrhook_clr_launch()
 {
-    // coreclr has native apis for this: DOTNET_STARTUP_HOOKS
-    // https://github.com/dotnet/runtime/blob/main/docs/design/features/host-startup-hook.md
-
     clrhook_ensure_directories();
 
     DIR *dir = opendir(plugin_dir);
@@ -306,22 +345,29 @@ static void clrhook_clr_launch()
             hook_list);
 }
 
+/**
+ * @brief Common startup function for both Mono and CoreCLR.
+ *
+ * Detects the runtime type and launches the appropriate plugin loading mechanism.
+ *
+ * @param runtime Detected runtime type.
+ */
 static void clrhook_startup(runtime_type_t runtime)
 {
-    fprintf(stderr, "[hook] clrhook_startup called\n");
+    fprintf(stderr, "[clrhook] clrhook_startup called\n");
     if (runtime == RUNTIME_MONO)
     {
-        fprintf(stderr, "[hook] detected Mono runtime\n");
+        fprintf(stderr, "[clrhook] detected Mono runtime\n");
         clrhook_mono_launch();
     }
     else if (runtime == RUNTIME_CORECLR)
     {
-        fprintf(stderr, "[hook] detected CoreCLR runtime\n");
+        fprintf(stderr, "[clrhook] detected CoreCLR runtime\n");
         clrhook_clr_launch();
     }
     else
     {
-        fprintf(stderr, "[hook] unknown runtime\n");
+        fprintf(stderr, "[clrhook] unknown runtime\n");
     }
 }
 
