@@ -37,5 +37,5 @@ cd plugins/demo
 dotnet build -c Release && rm -f "$PLUGINS_PATH/ClrHook.Demo.dll" && cp ./bin/Release/$TARGET_RUNTIME/ClrHook.Demo.dll "$PLUGINS_PATH/ClrHook.Demo.dll"
 cd ../..
 
-echo "Build complete! Remember to set the environment variable CLRHOOK_VERBOSE=1 if you want verbose logging."
+echo "Build complete!"
 echo "Run using $PRELOAD_HINT"
