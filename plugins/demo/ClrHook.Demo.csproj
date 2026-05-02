@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net40;net6.0</TargetFrameworks>
+    <AssemblyName>ClrHook.Demo</AssemblyName>
+    <RootNamespace>ClrHook.Demo</RootNamespace>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+</Project>
