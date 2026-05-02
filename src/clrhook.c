@@ -171,8 +171,6 @@ static mono_domain_get_t real_mono_domain_get = NULL;
 typedef const char *(*mono_image_get_name_t)(void *);
 static mono_image_get_name_t real_mono_image_get_name = NULL;
 
-#include <string.h>
-
 /**
  * @brief Check if a given Mono assembly is mscorlib.
  *
