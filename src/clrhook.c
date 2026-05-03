@@ -51,8 +51,7 @@ static mono_runtime_invoke_t real_mono_runtime_invoke = NULL;
 /**
  * @brief Load and invoke a clrhook plugin DLL.
  *
- * Attempts to load the specified DLL as a Mono assembly, find the clrhook.Startup class,
- * and invoke its Run method (with or without arguments).
+ * Attempts to load the specified DLL as a Mono assembly, using the StartupHook.Initialize convention defined by coreclr for startup hooks.
  *
  * @param dll_path Path to the plugin DLL.
  * @param domain Mono domain pointer.
@@ -173,8 +172,6 @@ static mono_image_get_name_t real_mono_image_get_name = NULL;
 
 /**
  * @brief Check if a given Mono assembly is mscorlib.
- *
- * This is used to skip loading plugins from the mscorlib assembly, which is not a plugin and can cause issues if treated as one.
  *
  * @param assembly Pointer to the Mono assembly to check.
  * @return 1 if the assembly is mscorlib, 0 otherwise.
