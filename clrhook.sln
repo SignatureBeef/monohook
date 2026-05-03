@@ -6,7 +6,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{07D5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "demo", "demo", "{A7A45208-FDB4-959C-0299-121B083A2F24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoHook.Demo", "plugins\demo\MonoHook.Demo.csproj", "{BEC3ABB6-6C76-653D-CB41-D8DE16024C19}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClrHook.Demo", "plugins\demo\ClrHook.Demo.csproj", "{BEC3ABB6-6C76-653D-CB41-D8DE16024C19}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

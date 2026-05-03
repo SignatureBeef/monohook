@@ -20,10 +20,10 @@ static int clrhook_ensure_directory(const char *path, mode_t mode)
     {
         if (mkdir(path, mode) != 0)
         {
-            fprintf(stderr, "[monohook] Failed to create directory: %s\n", path);
+            fprintf(stderr, "[clrhook] Failed to create directory: %s\n", path);
             return 0;
         }
-        // LOGV("[monohook] Created directory: %s\n", path);
+        // LOGV("[clrhook] Created directory: %s\n", path);
     }
     return 1;
 }
@@ -49,9 +49,9 @@ typedef void *(*mono_runtime_invoke_t)(void *, void *, void **, void **);
 static mono_runtime_invoke_t real_mono_runtime_invoke = NULL;
 
 /**
- * @brief Load and invoke a MonoHook plugin DLL.
+ * @brief Load and invoke a clrhook plugin DLL.
  *
- * Attempts to load the specified DLL as a Mono assembly, find the MonoHook.Startup class,
+ * Attempts to load the specified DLL as a Mono assembly, find the clrhook.Startup class,
  * and invoke its Run method (with or without arguments).
  *
  * @param dll_path Path to the plugin DLL.
@@ -59,42 +59,42 @@ static mono_runtime_invoke_t real_mono_runtime_invoke = NULL;
  */
 static void clrhook_mono_load_plugin(const char *dll_path, void *domain)
 {
-    fprintf(stderr, "[monohook] Loading plugin: %s\n", dll_path);
+    fprintf(stderr, "[clrhook] Loading plugin: %s\n", dll_path);
     void *inject_assembly = real_mono_domain_assembly_open(domain, dll_path);
     if (!inject_assembly)
     {
-        fprintf(stderr, "[monohook] Failed to load %s\n", dll_path);
+        fprintf(stderr, "[clrhook] Failed to load %s\n", dll_path);
         return;
     }
 
-    fprintf(stderr, "[monohook] Loaded assembly: %s\n", dll_path);
+    fprintf(stderr, "[clrhook] Loaded assembly: %s\n", dll_path);
 
     void *image = real_mono_assembly_get_image(inject_assembly);
     if (!image)
     {
-        fprintf(stderr, "[monohook] Failed to get image from assembly %s\n", dll_path);
+        fprintf(stderr, "[clrhook] Failed to get image from assembly %s\n", dll_path);
         return;
     }
 
-    fprintf(stderr, "[monohook] Got image from assembly: %s\n", dll_path);
+    fprintf(stderr, "[clrhook] Got image from assembly: %s\n", dll_path);
 
     void *klass = real_mono_class_from_name(image, "", "StartupHook");
     if (!klass)
     {
-        fprintf(stderr, "[monohook] Failed to find class StartupHook in %s\n", dll_path);
+        fprintf(stderr, "[clrhook] Failed to find class StartupHook in %s\n", dll_path);
         return;
     }
 
-    fprintf(stderr, "[monohook] Found class StartupHook in %s\n", dll_path);
+    fprintf(stderr, "[clrhook] Found class StartupHook in %s\n", dll_path);
 
     void *method = real_mono_class_get_method_from_name(klass, "Initialize", 0);
     if (!method)
     {
-        fprintf(stderr, "[monohook] Failed to find method Initialize() in %s\n", dll_path);
+        fprintf(stderr, "[clrhook] Failed to find method Initialize() in %s\n", dll_path);
         return;
     }
 
-    fprintf(stderr, "[monohook] Invoking method Initialize() in %s\n", dll_path);
+    fprintf(stderr, "[clrhook] Invoking method Initialize() in %s\n", dll_path);
 
     real_mono_runtime_invoke(method, NULL, NULL, NULL);
 }
@@ -128,7 +128,7 @@ static void clrhook_mono_load_plugins(void *native_app_domain)
     DIR *dir = opendir(plugin_dir);
     if (!dir)
     {
-        fprintf(stderr, "[monohook] Failed to open plugin directory: %s\n", plugin_dir);
+        fprintf(stderr, "[clrhook] Failed to open plugin directory: %s\n", plugin_dir);
         return;
     }
     struct dirent *entry;
@@ -195,7 +195,7 @@ static int clrhook_is_mscorlib(void *assembly)
     return 0;
 }
 
-static int monohook_assembly_loaded = 0;
+static int clrhook_assembly_loaded = 0;
 /**
  * @brief Mono assembly load hook callback.
  * This function is called by Mono whenever an assembly is loaded and will bootstrap the plugins
@@ -207,7 +207,7 @@ static int monohook_assembly_loaded = 0;
 static void clrhook_mono_on_assembly_load(void *assembly, void *user_data)
 {
     (void)user_data;
-    if (monohook_assembly_loaded)
+    if (clrhook_assembly_loaded)
         return;
 
     void *domain = real_mono_domain_get ? real_mono_domain_get() : NULL;
@@ -219,7 +219,7 @@ static void clrhook_mono_on_assembly_load(void *assembly, void *user_data)
     if (clrhook_is_mscorlib(assembly))
         return;
 
-    monohook_assembly_loaded = 1;
+    clrhook_assembly_loaded = 1;
 
     fprintf(stderr, "[clrhook] Mono assembly loaded: %p\n", assembly);
 
