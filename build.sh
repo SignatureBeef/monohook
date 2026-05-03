@@ -18,7 +18,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
     echo "For a universal dylib, build with: make DARWIN_ARCHS=\"arm64 x86_64\""
 
     NATIVE_LIB_NAME="clrhook.dylib"
-    PRELOAD_HINT='DYLD_INSERT_LIBRARIES=./clrhook.dylib DYLD_FORCE_FLAT_NAMESPACE=1 ./TheGame'
+    PRELOAD_HINT='DYLD_INSERT_LIBRARIES=./clrhook.dylib ./TheGame'
 
     LIB_PATH="$DESTINATION_PATH/MacOS/"
     PLUGINS_PATH="$DESTINATION_PATH/Resources/clrhook/plugins"
